@@ -1,10 +1,16 @@
 <div class="card shadow-sm mb-3">
     <div class="card-body p-3">
-        <h6 class="fw-bold small mb-3 text-uppercase">Nueva Etiqueta / Grupo</h6>
-        <div class="input-group input-group-sm">
-            <input type="text" class="form-control" placeholder="Nombre" [(ngModel)]="label.name">
-            <input type="color" class="form-control form-control-color" [(ngModel)]="label.color" style="width: 45px;">
-            <button class="btn btn-dark" (click)="crearEtiqueta()">+</button>
+        <h6 class="fw-bold small mb-3 text-uppercase">Nueva Etiqueta (24 Colores Google)</h6>
+        <input type="text" class="form-control form-control-sm mb-2" placeholder="Nombre del Grupo" [(ngModel)]="label.name">
+        <div class="d-flex flex-wrap gap-1 mb-3">
+            <div *ngFor="let c of googleColors" 
+                 (click)="seleccionarColor(c)"
+                 [style.backgroundColor]="c.hex"
+                 [class.border-dark]="label.color === c.hex"
+                 class="rounded-circle border cursor-pointer" 
+                 style="width: 25px; height: 25px; cursor: pointer;">
+            </div>
         </div>
+        <button class="btn btn-dark btn-sm w-100" (click)="crearEtiqueta()">Crear Grupo</button>
     </div>
 </div>

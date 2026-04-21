@@ -3,4 +3,5 @@ export interface Agenda {
     name: string;
     color: string;
     clientId: string;
+    googleId: string;
 }

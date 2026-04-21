@@ -1,9 +1,9 @@
-// src/app/core/services/agenda.ts
-import { Injectable, inject } from '@angular/core'; // Añadir inject
+import { Injectable, inject } from '@angular/core';
 import { Firebase } from './firebase';
 import { Cita } from '../models/cita';
 import { Agenda } from '../models/agenda';
 import { Contacto } from '../models/contacto';
+import { Grupo } from '../models/grupo';
 import {
   Firestore,
   collection,
@@ -12,24 +12,30 @@ import {
   collectionData,
   addDoc,
   doc,
-  deleteDoc
+  deleteDoc,
+  updateDoc
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AgendaService {
   private http = inject(HttpClient);
   private firestore = inject(Firestore);
+  private refreshCalendarSource = new Subject<void>();
+  refreshCalendar$ = this.refreshCalendarSource.asObservable();
 
   constructor(private fb: Firebase) { }
 
-  getCitasByClient(clientId: string) {
-    return this.fb.getCollection<Cita>('citas', 'clientId', clientId);
+  getLabelsByClient(clientId: string): Observable<Grupo[]> {
+    const ref = collection(this.firestore, 'labels');
+    const q = query(ref, where('clientId', '==', clientId));
+    return collectionData(q, { idField: 'id' }) as Observable<Grupo[]>;
   }
 
-  getLabelsByClient(clientId: string) {
-    return this.fb.getCollection<Agenda>('labels', 'clientId', clientId);
+  getCitasByClient(clientId: string) {
+    return this.fb.getCollection<Cita>('citas', 'clientId', clientId);
   }
 
   saveCita(cita: Cita) {
@@ -44,12 +50,9 @@ export class AgendaService {
     return this.fb.createDoc('labels', label);
   }
 
-  // --- MÉTODOS DE CONTACTOS CORREGIDOS ---
-
   getContactosByClient(clientId: string): Observable<Contacto[]> {
     const ref = collection(this.firestore, 'contactos');
     const q = query(ref, where('clientId', '==', clientId));
-    // El "as Observable<Contacto[]>" es la clave aquí
     return collectionData(q, { idField: 'id' }) as Observable<Contacto[]>;
   }
 
@@ -58,29 +61,32 @@ export class AgendaService {
     return addDoc(ref, contacto);
   }
 
+  updateContacto(id: string, contacto: Partial<Contacto>) {
+    const ref = doc(this.firestore, `contactos/${id}`);
+    return updateDoc(ref, contacto);
+  }
+
   deleteContacto(id: string) {
     return deleteDoc(doc(this.firestore, `contactos/${id}`));
   }
 
-  // src/app/core/services/agenda.ts
+  addToGoogleCalendar(cita: any, googleColorId: string = '1'): Observable<any> {
+    const SCRIPT_URL = environment.googleScriptUrl;
 
-  async addToGoogleCalendar(cita: any) {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwu-R70P3wEul6GOxIDqBIdEsxqi0kBB_w1ECn0Ao51PYMYrvXYHhKbPa7dsz_zE-6BiA/exec';
+    const body = {
+      title: cita.title,
+      contactName: cita.contactName,
+      date: cita.date.toISOString(),
+      motivo: cita.motivo,
+      duracion: cita.duracion,
+      ubicacion: cita.ubicacion,
+      colorId: googleColorId
+    };
 
-    try {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Fundamental para saltar errores de seguridad
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: cita.title,
-          contactName: cita.contactName,
-          date: cita.date.toISOString()
-        })
-      });
-      console.log('Sincronización enviada a Google');
-    } catch (error) {
-      console.error('Error enviando a Google:', error);
-    }
+    return this.http.post(SCRIPT_URL, JSON.stringify(body), { responseType: 'text' });
+  }
+
+  notifyCalendarUpdate() {
+    this.refreshCalendarSource.next();
   }
 }

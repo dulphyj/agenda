@@ -7,8 +7,8 @@ import { Theme } from '../../../../core/services/theme';
 import { Client } from '../../../../core/models/client';
 import { Observable } from 'rxjs';
 import { Usuario } from '../../../../core/models/usuario';
-import { Component, OnInit, inject } from '@angular/core'; // Añadir inject
-import { Firestore, collection, query, where, collectionData } from '@angular/fire/firestore'; // Importar Firestore
+import { Component, OnInit, inject } from '@angular/core';
+import { Firestore, collection, query, where, collectionData } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-portal-view',
@@ -21,19 +21,14 @@ export class PortalView implements OnInit {
   asistenteActivo$!: Observable<Usuario[]>;
   clientId = environment.viceClientId;
   logoActual: string = 'assets/logo-negro.png';
-
-  // Inyectar Firestore directamente para la consulta filtrada
   private firestore = inject(Firestore);
 
   constructor(private fb: Firebase, private themeService: Theme) { }
 
   ngOnInit() {
-    // 1. Consulta directa a Firestore (evita el error del servicio Firebase)
     const userRef = collection(this.firestore, 'usuarios');
     const q = query(userRef, where('isActiveWA', '==', true));
     this.asistenteActivo$ = collectionData(q, { idField: 'uid' }) as Observable<Usuario[]>;
-
-    // 2. Resto de la lógica
     const temaGuardado = this.themeService.getTheme();
     this.themeService.setTheme(temaGuardado);
     this.actualizarLogo(temaGuardado);

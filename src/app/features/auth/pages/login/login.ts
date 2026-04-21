@@ -17,26 +17,21 @@ export class Login {
   password = '';
   error = '';
 
-  // Usando inject para evitar líos de contexto
   private auth = inject(Auth);
   private firestore = inject(Firestore);
   private router = inject(Router);
 
-  // login.ts -> método ingresar()
   async ingresar() {
     try {
       const res = await signInWithEmailAndPassword(this.auth, this.email, this.password);
-
-      // FORZAR lectura de Firestore para saber el ROL
       const userSnap = await getDoc(doc(this.firestore, `usuarios/${res.user.uid}`));
       const userData = userSnap.data() as Usuario;
-
       if (userData && userData.role === 'super-admin') {
         this.router.navigate(['/super-admin']);
       } else if (userData && userData.role === 'asistente') {
         this.router.navigate(['/admin']);
       } else {
-        this.router.navigate(['/']); // Si no tiene rol, al portal
+        this.router.navigate(['/']);
       }
     } catch (e) {
       this.error = 'Credenciales inválidas';

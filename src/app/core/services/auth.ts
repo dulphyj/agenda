@@ -17,7 +17,6 @@ export class AuthService {
     const userData = userDoc.data();
 
     if (userData?.['role'] === 'super-admin') {
-      // ESTO DEBE COINCIDIR CON TU APP.ROUTES
       this.router.navigate(['/super-admin']);
     } else {
       this.router.navigate(['/admin']);

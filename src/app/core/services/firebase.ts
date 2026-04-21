@@ -11,7 +11,7 @@ export class Firebase {
   }
   constructor(
     private firestore: Firestore,
-    private auth: Auth // Inyección necesaria
+    private auth: Auth
   ) { }
 
   getCollection<T>(path: string, filterField?: string, filterValue?: any): Observable<T[]> {
@@ -36,7 +36,6 @@ export class Firebase {
   async getClientByLoggedUser() {
     const user = this.auth.currentUser;
     if (!user) return null;
-    // Busca en la colección 'usuarios' el documento que tenga el mismo UID que el login
     const userDoc = await getDoc(doc(this.firestore, `usuarios/${user.uid}`));
     return userDoc.exists() ? userDoc.data()?.['clientId'] : null;
   }

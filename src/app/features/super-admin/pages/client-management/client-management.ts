@@ -1,8 +1,6 @@
-// src/app/features/super-admin/pages/user-management/user-management.ts
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user';
@@ -17,13 +15,10 @@ import { Usuario } from '../../../../core/models/usuario';
 })
 export class ClientManagement implements OnInit {
   usuarios$: any;
-
-  // Campos del formulario
   nuevoNombre = '';
   nuevoEmail = '';
   nuevoPassword = '';
   nuevoWhatsApp = '';
-
   private userService = inject(UserService);
   private auth = inject(Auth);
   private router = inject(Router);
@@ -41,7 +36,6 @@ export class ClientManagement implements OnInit {
         this.nuevoNombre,
         this.nuevoWhatsApp
       );
-      // Limpiar campos
       this.nuevoNombre = ''; this.nuevoEmail = ''; this.nuevoPassword = ''; this.nuevoWhatsApp = '';
       alert('Asistente creado con éxito');
     } catch (e: any) {
@@ -58,13 +52,11 @@ export class ClientManagement implements OnInit {
     const nuevoEstado = !user.isActiveWA;
 
     if (nuevoEstado) {
-      // Desactivar a todos los demás primero
       const todos = await firstValueFrom(this.usuarios$);
       for (const u of todos as Usuario[]) {
         if (u.isActiveWA) await this.userService.updateUser(u.uid, { isActiveWA: false });
       }
     }
-
     await this.userService.updateUser(user.uid, { isActiveWA: nuevoEstado });
   }
 
@@ -73,5 +65,4 @@ export class ClientManagement implements OnInit {
       await this.userService.deleteUser(uid);
     }
   }
-
 }

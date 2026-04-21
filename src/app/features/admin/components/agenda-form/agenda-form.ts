@@ -1,18 +1,15 @@
-// src/app/features/admin/components/agenda-form/agenda-form.ts
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgendaService } from '../../../../core/services/agenda';
 import { Contacto } from '../../../../core/models/contacto';
-import { Agenda } from '../../../../core/models/agenda';
 import { Observable } from 'rxjs';
-import { ColorPicker } from '../color-picker/color-picker';
 import { Cita } from '../../../../core/models/cita';
 
 @Component({
   selector: 'app-agenda-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPicker],
+  imports: [CommonModule, FormsModule],
   templateUrl: './agenda-form.html'
 })
 export class AgendaForm implements OnInit {
@@ -20,59 +17,79 @@ export class AgendaForm implements OnInit {
   private agendaService = inject(AgendaService);
 
   contactos$!: Observable<Contacto[]>;
-  labels$!: Observable<Agenda[]>; // DECLARAR ESTA
+  grupos: any[] = [];
   contactoSeleccionado: any = null;
 
-  nuevaCita = {
+  nuevaCita: any = {
     title: '',
     contactId: '',
     contactName: '',
     date: '',
     labelId: '',
-    clientId: this.clientId,
-    motivo: '',      // NUEVO
-    duracion: 60,    // NUEVO (default 1 hora)
-    ubicacion: ''    // NUEVO
+    clientId: '',
+    motivo: '',
+    duracion: 60,
+    ubicacion: ''
   };
 
   ngOnInit() {
-    this.contactos$ = this.agendaService.getContactosByClient(this.clientId);
-    this.labels$ = this.agendaService.getLabelsByClient(this.clientId); // INICIALIZAR
     this.nuevaCita.clientId = this.clientId;
+    this.contactos$ = this.agendaService.getContactosByClient(this.clientId);
+    this.agendaService.getLabelsByClient(this.clientId).subscribe(res => {
+      this.grupos = res;
+    });
   }
 
-  compareContactos(c1: any, c2: any): boolean {
-    return c1 && c2 ? c1.id === c2.id : c1 === c2;
+  getGrupoNombre(grupoId: string): string {
+    const grupo = this.grupos.find(g => g.id === grupoId);
+    return grupo ? grupo.name : 'Sin Grupo';
   }
 
-  onContactoChange(contacto: any) {
+  onContactoChange(contacto: Contacto) {
     if (contacto) {
       this.nuevaCita.contactName = contacto.nombreCompleto;
       this.nuevaCita.contactId = contacto.id;
-      this.nuevaCita.labelId = contacto.grupoId; // El color del grupo
+      this.nuevaCita.labelId = contacto.grupoId;
     }
   }
 
   async guardar() {
-    if (!this.nuevaCita.contactId || !this.nuevaCita.date) {
-      alert('Falta contacto o fecha');
-      return;
-    }
-
+    if (!this.nuevaCita.title || !this.nuevaCita.date) return;
+    const grupoSeleccionado = this.grupos.find(g => g.id === this.nuevaCita.labelId);
+    const googleColorId = grupoSeleccionado?.googleId || '1';
     const data: Cita = {
       ...this.nuevaCita,
       date: new Date(this.nuevaCita.date)
     };
+    try {
+      await this.agendaService.saveCita(data);
 
-    await this.agendaService.saveCita(data);
-    await this.agendaService.addToGoogleCalendar(data); // El método que usa Apps Script
-
-    this.limpiarForm();
-    alert('Cita agendada con éxito');
+      this.agendaService.addToGoogleCalendar(data, googleColorId).subscribe({
+        next: () => {
+          this.agendaService.notifyCalendarUpdate();
+          alert('¡Cita agendada y sincronizada con Google!');
+          this.limpiarForm();
+        },
+        error: (err) => {
+          console.log('Detalle técnico (ignorar si sincroniza):', err);
+          this.agendaService.notifyCalendarUpdate();
+          this.limpiarForm();
+        }
+      });
+    } catch (error) {
+      console.error('Error en Firebase:', error);
+    }
   }
 
   limpiarForm() {
-    this.nuevaCita = { ...this.nuevaCita, title: '', contactName: '', date: '' };
+    this.nuevaCita = {
+      ...this.nuevaCita,
+      title: '',
+      contactName: '',
+      date: '',
+      motivo: '',
+      ubicacion: ''
+    };
     this.contactoSeleccionado = null;
   }
 }

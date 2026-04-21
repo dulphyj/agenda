@@ -2,25 +2,41 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AgendaService } from '../../../core/services/agenda';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="ratio ratio-16x9 shadow-lg rounded-4 overflow-hidden border bg-white">
-      <iframe [src]="calendarUrl" style="border: 0" frameborder="0" scrolling="no"></iframe>
+    <div style="width: 100%; height: 600px; background: #eee; display: flex; align-items: center; justify-content: center;" *ngIf="!calendarUrl">
+      Cargando calendario...
     </div>
+    <iframe *ngIf="calendarUrl" 
+            [src]="calendarUrl" 
+            style="border: 0" 
+            width="100%" 
+            height="600" 
+            frameborder="0" 
+            scrolling="no">
+    </iframe>
   `
 })
 export class Calendar implements OnInit {
-  private sanitizer = inject(DomSanitizer);
-  calendarUrl!: SafeResourceUrl;
+  calendarUrl: SafeResourceUrl | null = null;
+  private agendaService = inject(AgendaService);
+  constructor(private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
-    // El ID de calendario de tu imagen
-    const calendarId = 'mopsvpntv@gmail.com';
-    const url = `https://calendar.google.com/calendar/embed?src=${calendarId}&ctz=America%2FLa_Paz&mode=MONTH&showNav=1&showPrint=0&showTabs=1&showCalendars=0`;
+    this.loadCalendar();
+    this.agendaService.refreshCalendar$.subscribe(() => this.loadCalendar());
+  }
+
+  loadCalendar() {
+    const email = environment.email;
+    const timestamp = new Date().getTime();
+    const url = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(email)}&ctz=America%2FLa_Paz&mode=WEEK&t=${timestamp}`;
     this.calendarUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

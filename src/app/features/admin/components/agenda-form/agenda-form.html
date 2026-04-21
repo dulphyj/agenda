@@ -8,7 +8,7 @@
                     (ngModelChange)="onContactoChange($event)" name="contactSelect" required>
                     <option [ngValue]="null">-- Seleccione un contacto --</option>
                     <option *ngFor="let c of contactos$ | async" [ngValue]="c">
-                        {{ c.nombreCompleto }} ({{ c.cargo || 'Sin cargo' }})
+                        {{ c.nombreCompleto }} ({{ getGrupoNombre(c.grupoId) }})
                     </option>
                 </select>
             </div>
@@ -24,14 +24,22 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="small fw-bold mb-1">Fecha y Hora</label>
-                    <input type="datetime-local" class="form-control" [(ngModel)]="nuevaCita.date" name="date" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="small fw-bold mb-1">Duración (minutos)</label>
-                    <input type="number" class="form-control" [(ngModel)]="nuevaCita.duracion" name="duracion">
-                </div>
+                <div class="mb-3">
+    <label class="small fw-bold mb-1">Fecha y Hora de la Cita</label>
+    <div class="input-group">
+        <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+        <input type="datetime-local" class="form-control" [(ngModel)]="nuevaCita.date" name="date" required>
+    </div>
+    <div class="form-text text-muted" style="font-size: 0.75rem;">Asegúrate de seleccionar la hora correcta.</div>
+</div>
+
+<div class="mb-3">
+    <label class="small fw-bold mb-1">Duración estimada (minutos)</label>
+    <div class="input-group">
+        <span class="input-group-text bg-light"><i class="bi bi-clock-history"></i></span>
+        <input type="number" class="form-control" [(ngModel)]="nuevaCita.duracion" name="duracion" placeholder="Ej: 60">
+    </div>
+</div>
             </div>
 
             <div class="mb-3">

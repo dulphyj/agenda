@@ -1,15 +1,6 @@
+<app-header></app-header>
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
-        <nav class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm">
-            <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Agenda de Citas</a>
-            <a class="nav-link" routerLink="/admin/contactos" routerLinkActive="active">Directorio de Contactos</a>
-        </nav>
-        <button class="btn btn-outline-secondary rounded-circle" (click)="toggleTheme()">
-            <i class="bi bi-brightness-high"></i>
-        </button>
-    </div>
-
-    <div class="row">
+        <div class="row">
         <div class="col-md-4">
             <app-color-picker [clientId]="clientId"></app-color-picker>
 
@@ -65,10 +56,21 @@
                         <td class="fw-bold">{{ c.nombreCompleto }}</td>
                         <td class="small">{{ c.cargo }}</td>
                         <td class="small">{{ c.celular }}<br>{{ c.email }}</td>
-                        <td><span class="badge bg-secondary">Grupo</span></td>
+                        <td>
+                            <ng-container *ngIf="getGrupoInfo(c.grupoId) as grupo; else sinGrupo">
+                                <span class="badge rounded-pill shadow-sm" [style.backgroundColor]="grupo.color"
+                                    style="color: white; font-weight: 500;">
+                                    {{ grupo.name }}
+                                </span>
+                            </ng-container>
+                            <ng-template #sinGrupo>
+                                <span class="badge bg-secondary opacity-50">Sin Grupo</span>
+                            </ng-template>
+                        </td>
                     </tr>
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>

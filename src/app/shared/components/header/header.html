@@ -1,0 +1,30 @@
+<header class="bg-white shadow-sm mb-4 border-bottom py-2">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="navbar-brand">
+                <img [src]="themeService.getTheme() === 'light' ? logoLight : logoDark" 
+                     alt="Logo" 
+                     style="height: 70px; transition: 0.3s;">
+            </div>
+
+            <nav class="nav nav-pills p-1 bg-light rounded-pill">
+                <a class="nav-link rounded-pill px-4" 
+                   routerLink="/admin/dashboard" 
+                   routerLinkActive="active shadow-sm bg-dark text-white">
+                   <i class="bi bi-calendar3 me-2"></i>Agenda
+                </a>
+                <a class="nav-link rounded-pill px-4" 
+                   routerLink="/admin/contactos" 
+                   routerLinkActive="active shadow-sm bg-dark text-white">
+                   <i class="bi bi-people me-2"></i>Contactos
+                </a>
+            </nav>
+
+            <button class="btn btn-outline-secondary rounded-circle border-0" 
+                    (click)="toggleTheme()"
+                    [title]="themeService.getTheme() === 'light' ? 'Modo Oscuro' : 'Modo Claro'">
+                <i class="bi" [ngClass]="themeService.getTheme() === 'light' ? 'bi-moon-stars' : 'bi-brightness-high'"></i>
+            </button>
+        </div>
+    </div>
+</header>

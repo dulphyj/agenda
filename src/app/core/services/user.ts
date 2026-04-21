@@ -5,6 +5,7 @@ import { Firestore, collection, collectionData, doc, setDoc } from '@angular/fir
 import { Usuario } from '../models/usuario';
 import { firstValueFrom, Observable } from 'rxjs';
 import { deleteDoc, updateDoc } from 'firebase/firestore/lite';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -12,22 +13,20 @@ export class UserService {
   private firestore = inject(Firestore);
 
   async registrarAsistente(email: string, pass: string, nombre: string, whatsapp: string) {
-    // AQUÍ SE ENVÍA LA CONTRASEÑA A FIREBASE AUTH
     const res = await createUserWithEmailAndPassword(this.auth, email, pass);
 
     const perfil: Usuario = {
       uid: res.user.uid,
       email: email,
       role: 'asistente',
-      clientId: 'viceministro'
+      clientId: environment.viceClientId,
     };
 
-    // Guardamos los datos extras en Firestore
     return setDoc(doc(this.firestore, `usuarios/${res.user.uid}`), {
       ...perfil,
       displayName: nombre,
       whatsappNumber: whatsapp,
-      isActiveWA: false // Por defecto desactivado
+      isActiveWA: false
     });
   }
 
@@ -37,14 +36,11 @@ export class UserService {
   }
 
   async setWhatsAppActivo(uid: string, numero: string) {
-    // 1. Desactivar a todos primero
     const usuarios = await firstValueFrom(this.getUsuarios());
     for (let u of usuarios) {
       await setDoc(doc(this.firestore, `usuarios/${u.uid}`), { isActiveWA: false }, { merge: true });
     }
-    // 2. Activar al elegido
     await setDoc(doc(this.firestore, `usuarios/${uid}`), { isActiveWA: true }, { merge: true });
-    // 3. Opcional: Actualizar el dato maestro en clientes
     await setDoc(doc(this.firestore, 'clientes/viceministro'), { whatsappNumber: numero }, { merge: true });
   }
 
