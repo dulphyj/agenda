@@ -1,0 +1,60 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <nav class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm">
+            <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Agenda de Citas</a>
+            <a class="nav-link" routerLink="/admin/contactos" routerLinkActive="active">Directorio de Contactos</a>
+        </nav>
+        <button class="btn btn-outline-secondary rounded-circle" (click)="toggleTheme()">
+            <i class="bi bi-brightness-high"></i>
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <app-agenda-form [clientId]="clientId"></app-agenda-form>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-3 border-0">
+                    <h5 class="mb-0">Citas Programadas</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Contacto</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Etiqueta</th>
+                                    <th class="text-end">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let cita of citas$ | async">
+                                    <td class="fw-bold">{{ cita.title }}</td>
+                                    <td>{{ cita.contactName }}</td>
+                                    <td>{{ cita.date?.toDate() | date:'dd/MM/yyyy HH:mm' }}</td>
+                                    <td>
+                                        <span class="badge rounded-pill" [style.backgroundColor]="cita.labelId">
+                                            Color
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-danger" (click)="eliminarCita(cita.id)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="(citas$ | async)?.length === 0">
+                                    <td colspan="5" class="text-center py-4 text-muted">No hay citas registradas.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

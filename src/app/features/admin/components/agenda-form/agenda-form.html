@@ -1,0 +1,48 @@
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white fw-bold">Programar Nueva Cita</div>
+    <div class="card-body">
+        <form (ngSubmit)="guardar()">
+            <div class="mb-3">
+                <label class="small fw-bold mb-1">Seleccionar Contacto</label>
+                <select class="form-select" [(ngModel)]="contactoSeleccionado"
+                    (ngModelChange)="onContactoChange($event)" name="contactSelect" required>
+                    <option [ngValue]="null">-- Seleccione un contacto --</option>
+                    <option *ngFor="let c of contactos$ | async" [ngValue]="c">
+                        {{ c.nombreCompleto }} ({{ c.cargo || 'Sin cargo' }})
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="small fw-bold mb-1">Título de la Reunión</label>
+                <input type="text" class="form-control" [(ngModel)]="nuevaCita.title" name="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="small fw-bold mb-1">Motivo / Descripción</label>
+                <textarea class="form-control" [(ngModel)]="nuevaCita.motivo" name="motivo" rows="2"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="small fw-bold mb-1">Fecha y Hora</label>
+                    <input type="datetime-local" class="form-control" [(ngModel)]="nuevaCita.date" name="date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="small fw-bold mb-1">Duración (minutos)</label>
+                    <input type="number" class="form-control" [(ngModel)]="nuevaCita.duracion" name="duracion">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="small fw-bold mb-1">Ubicación / Link</label>
+                <input type="text" class="form-control" [(ngModel)]="nuevaCita.ubicacion" name="ubicacion"
+                    placeholder="Oficina, Zoom, etc.">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                AGENDAR Y SINCRONIZAR
+            </button>
+        </form>
+    </div>
+</div>

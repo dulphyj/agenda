@@ -1,0 +1,74 @@
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+        <nav class="nav nav-pills mb-4 bg-white p-2 rounded shadow-sm">
+            <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">Agenda de Citas</a>
+            <a class="nav-link" routerLink="/admin/contactos" routerLinkActive="active">Directorio de Contactos</a>
+        </nav>
+        <button class="btn btn-outline-secondary rounded-circle" (click)="toggleTheme()">
+            <i class="bi bi-brightness-high"></i>
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <app-color-picker [clientId]="clientId"></app-color-picker>
+
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-header bg-dark text-white fw-bold small">GRUPOS CONFIGURADOS</div>
+                <div class="list-group list-group-flush">
+                    <div *ngFor="let g of grupos$ | async" class="list-group-item d-flex align-items-center">
+                        <span [style.backgroundColor]="g.color" class="rounded-circle me-2"
+                            style="width:12px; height:12px;"></span>
+                        {{ g.name }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Nuevo Contacto</h5>
+                    <div class="row g-2">
+                        <div class="col-md-6"><input [(ngModel)]="nuevoContacto.nombreCompleto" class="form-control"
+                                placeholder="Nombre Completo"></div>
+                        <div class="col-md-6"><input [(ngModel)]="nuevoContacto.cargo" class="form-control"
+                                placeholder="Cargo (Opcional)"></div>
+                        <div class="col-md-4"><input [(ngModel)]="nuevoContacto.celular" class="form-control"
+                                placeholder="Celular"></div>
+                        <div class="col-md-4"><input [(ngModel)]="nuevoContacto.email" class="form-control"
+                                placeholder="Email"></div>
+                        <div class="col-md-4">
+                            <select [(ngModel)]="nuevoContacto.grupoId" class="form-select">
+                                <option value="">Asignar Grupo</option>
+                                <option *ngFor="let g of grupos$ | async" [value]="g.id">{{ g.name }}</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end mt-2">
+                            <button (click)="guardarContacto()" class="btn btn-primary px-4">Guardar Contacto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table bg-white shadow-sm rounded-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Contacto</th>
+                        <th>Grupo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let c of contactos$ | async">
+                        <td class="fw-bold">{{ c.nombreCompleto }}</td>
+                        <td class="small">{{ c.cargo }}</td>
+                        <td class="small">{{ c.celular }}<br>{{ c.email }}</td>
+                        <td><span class="badge bg-secondary">Grupo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

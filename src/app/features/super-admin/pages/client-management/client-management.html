@@ -1,0 +1,58 @@
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Gestión de Usuarios (Asistentes)</h2>
+        <button class="btn btn-danger" (click)="salir()">Cerrar Sesión</button>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+        <h5 class="fw-bold mb-3">Crear Nuevo Asistente</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="text" [(ngModel)]="nuevoNombre" class="form-control" placeholder="Nombre completo">
+            </div>
+            <div class="col-md-4">
+                <input type="email" [(ngModel)]="nuevoEmail" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-4">
+                <input type="password" [(ngModel)]="nuevoPassword" class="form-control" placeholder="Contraseña">
+            </div>
+            <div class="col-md-4">
+                <input type="text" [(ngModel)]="nuevoWhatsApp" class="form-control"
+                    placeholder="Número WhatsApp (ej: 591700...)">
+            </div>
+            <div class="col-md-4 d-flex align-items-center">
+                <button class="btn btn-primary w-100" (click)="registrar()">Registrar Asistente</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <table class="table table-hover mb-0">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>WhatsApp</th>
+                    <th>Visible en Portal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of usuarios$ | async">
+                    <td>{{ u.displayName }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.whatsappNumber }}</td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" [checked]="u.isActiveWA"
+                                (change)="toggleAsistente(u)">
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" (click)="eliminar(u.uid)">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
